@@ -1,3 +1,4 @@
+
 return {
   {
     "williamboman/mason.nvim",
@@ -6,10 +7,13 @@ return {
     end
   },
   {
+    "ms-jpq/coq_nvim",
+  },
+  {
     "williamboman/mason-lspconfig.nvim",
     config = function()
       require("mason-lspconfig").setup({
-        ensure_installed = { "lua_ls" , "gopls", "htmx", "tsserver", "templ", "jsonls" }
+        ensure_installed = { "lua_ls" , "gopls", "htmx", "tsserver", "templ", "jsonls", "tailwindcss" }
       })
     end
   },
@@ -17,6 +21,7 @@ return {
     "neovim/nvim-lspconfig",
     config = function()
       local lspconfig = require("lspconfig")
+      local coq = require("coq")
       lspconfig.lua_ls.setup({
         settings = {
           Lua = {
@@ -27,15 +32,18 @@ return {
         },
       })
       lspconfig.gopls.setup({})
+      lspconfig.gopls.setup(coq.lsp_ensure_capabilities({}))
       lspconfig.htmx.setup({})
+      lspconfig.htmx.setup(coq.lsp_ensure_capabilities({}))
       lspconfig.templ.setup({})
+      lspconfig.templ.setup(coq.lsp_ensure_capabilities({}))
       lspconfig.tsserver.setup({})
       lspconfig.jsonls.setup({})
+      lspconfig.tailwindcss.setup({
+        filetypes = { "templ", "astro", "javascript", "typescript", "react" },
+        init_options = { userLanguages = { templ = "html" } },
+      })
 
-      vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float)
-      vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
-      vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
-      vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist)
       vim.api.nvim_create_autocmd('LspAttach', {
         group = vim.api.nvim_create_augroup('UserLspConfig', {}),
         callback = function(ev)
